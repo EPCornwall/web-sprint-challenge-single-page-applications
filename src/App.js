@@ -1,6 +1,7 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Route} from 'react-router-dom';
 import * as Yup from "yup";
+import axios from 'axios';
 
 import Form from './Form';
 import Home from './Home';
@@ -9,19 +10,28 @@ import formSchema from './formSchema'
 const initialFormValue={
 name:'',
 size: '',
-toppings: [],
+toppings: {
+  pepperoni: false,
+  olives: false,
+  onions: false,
+  peppers: false,
+},
 instructions: ''
 }
 
 
 const App = () => {
 const [form, setForm] = useState(initialFormValue)
-  
+const [orders, setOrders] = useState({})  
+const [buttonDisabled, setButtonDisabled] = useState(true)
 
   const checkBoxChange = (name, isChecked) => {
     setForm({
       ...form,
-      [name]: isChecked
+      toppings: {
+        ...form.toppings,
+        [name]: isChecked
+      }
     })
   }
 
@@ -53,6 +63,34 @@ const [form, setForm] = useState(initialFormValue)
   e.persist();
   };
 
+  const handleSubmit = (e) =>{
+    e.preventDefault()
+    const newOrder ={
+      name: form.name,
+      size: form.size,
+      toppings: Object.keys(form.toppings).filter(tp => form.toppings[tp]),
+      instructions: form.instructions,
+    }
+    postNewOrder(newOrder)
+    setForm(initialFormValue)
+  }
+
+  const postNewOrder = order =>{
+    axios.post('http://localhost:3000/pizza', order)
+    .then(res =>{
+      setOrders([...orders, res.data])
+      console.log(res.data);
+    })
+    .catch(err =>{
+      debugger
+    })
+  }
+
+  useEffect(() => {
+    formSchema.isValid(form).then(valid => {
+      setButtonDisabled(!valid);
+    });
+  }, [form]);
 
   return (
    <div>
@@ -64,7 +102,9 @@ const [form, setForm] = useState(initialFormValue)
         <Form form={form}
         checkBoxChange={checkBoxChange}
         handleChange={handleChange}
-        errors={errors} />
+        errors={errors}
+        handleSubmit={handleSubmit}
+        buttonDisabled={buttonDisabled} />
       </Route>
 
    </div> 
