@@ -79,7 +79,7 @@ export default function Form(props){
             {/*Button to place order, submits form to database*/}
             <button disabled={buttonDisabled} onClick={handleSubmit}>Submit</button>
             </form>
-            
+            <div>{errors.name}</div>
 
         </div>
     )
