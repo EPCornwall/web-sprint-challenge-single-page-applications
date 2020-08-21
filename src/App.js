@@ -22,7 +22,7 @@ instructions: ''
 
 const App = () => {
 const [form, setForm] = useState(initialFormValue)
-const [orders, setOrders] = useState({})  
+const [orders, setOrders] = useState([])  
 const [buttonDisabled, setButtonDisabled] = useState(true)
 
   const checkBoxChange = (name, isChecked) => {
@@ -66,19 +66,19 @@ const [buttonDisabled, setButtonDisabled] = useState(true)
   const handleSubmit = (e) =>{
     e.preventDefault()
     const newOrder ={
-      name: form.name,
-      size: form.size,
+      name: form.name.trim(),
+      size: form.size.trim(),
       toppings: Object.keys(form.toppings).filter(tp => form.toppings[tp]),
-      instructions: form.instructions,
+      instructions: form.instructions.trim(),
     }
     postNewOrder(newOrder)
     setForm(initialFormValue)
   }
 
   const postNewOrder = order =>{
-    axios.post('http://localhost:3000/pizza', order)
+    axios.post('https://reqres.in/api/users', order)
     .then(res =>{
-      setOrders([...orders, res.data])
+      setOrders([res.data, ...orders])
       console.log(res.data);
     })
     .catch(err =>{
